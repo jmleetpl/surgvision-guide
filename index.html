@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="수술영상 AI 연구를 아이디어부터 설계·아노테이션·모델 선택·평가·외부검증·원고까지 따라가는 SurgVision Studio와 Aside 실습 안내서">
+<title>SurgVision 실습 안내</title>
+
+<style>
+:root{
+  --bg:#f7f8f7;--surface:#ffffff;--ink:#16201f;--muted:#5b6866;--line:#dde3e1;
+  --accent:#0f6e6e;--accent-soft:#e3f1f0;--warn:#9a5b00;--warn-soft:#fdf3e2;--bad:#a12626;--code:#f1f4f3;
+  --radius:12px;--maxw:1080px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1514;--surface:#172020;--ink:#e6eeec;--muted:#9fb0ad;--line:#2a3735;
+  --accent:#5cc3bd;--accent-soft:#183332;--warn:#f0b35a;--warn-soft:#33281a;--bad:#ff8a8a;--code:#1d2a29;}}
+:root[data-theme="dark"]{
+  --bg:#0f1514;--surface:#172020;--ink:#e6eeec;--muted:#9fb0ad;--line:#2a3735;
+  --accent:#5cc3bd;--accent-soft:#183332;--warn:#f0b35a;--warn-soft:#33281a;--bad:#ff8a8a;--code:#1d2a29;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;}
+a{color:var(--accent)}
+header.hero{background:linear-gradient(135deg,var(--accent-soft),var(--bg));border-bottom:1px solid var(--line)}
+.wrap{max-width:var(--maxw);margin:0 auto}
+.hero .wrap{padding-top:40px;padding-bottom:32px}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.25;margin:0 0 10px}
+h2{font-size:24px;margin:48px 0 12px;padding-top:8px;border-top:1px solid var(--line)}
+h3{font-size:18px;margin:24px 0 8px}
+.lead{font-size:18px;color:var(--muted);max-width:760px}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start}
+nav.toc{position:sticky;top:16px;font-size:14px;padding:16px 0}
+nav.toc a{display:block;padding:4px 8px;border-radius:8px;text-decoration:none;color:var(--muted)}
+nav.toc a:hover{background:var(--accent-soft);color:var(--ink)}
+main{min-width:0;padding-bottom:80px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:12px}
+.card{min-width:0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:14px}
+.flow span b{color:var(--accent);margin-right:4px}
+.note{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:8px;margin:12px 0}
+.warn{border-left:4px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:8px;margin:12px 0}
+code,kbd{background:var(--code);border-radius:6px;padding:1px 6px;font-size:.92em;overflow-wrap:anywhere;word-break:break-word}
+main p,main li,td{overflow-wrap:anywhere}
+html,body{max-width:100%;overflow-x:hidden}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.copy{position:relative}
+.copy button{position:absolute;top:8px;right:8px}
+button{font:inherit;font-size:14px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+.prompt pre{max-height:360px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px}
+.num{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.step ul{margin:6px 0 0;padding-left:20px}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-right:4px;color:var(--muted)}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line)}
+.check input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.filters input,.filters select{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.themebtn{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding:24px 0}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav.toc{position:static;display:flex;flex-wrap:wrap;gap:4px;padding:8px 0}nav.toc a{border:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+
+<button class="ghost themebtn" id="themeBtn" aria-label="밝기 전환">◐</button>
+<header class="hero"><div class="wrap">
+  <h1>아이디어와 수술 영상만 있으면,<br>AI 모델 연구를 처음부터 끝까지</h1>
+  <p class="lead">어떤 수술이든 됩니다. 이 안내서를 따라 <b>SurgVision Studio</b>(내 컴퓨터에서 도는 웹앱)와 <b>Aside</b>를 함께 쓰면, 연구 설계 → 필요한 건수 → 비식별 → 아노테이션 → 데이터 구성 → 모델 선택 → 학습·평가 → 외부검증 → 원고 초안까지 한 흐름으로 진행합니다.</p>
+  <div class="flow">
+    <span><b>1</b>설계</span><span><b>2</b>필요 건수</span><span><b>3</b>거버넌스</span><span><b>4</b>데이터</span><span><b>5</b>화면 검토</span><span><b>6</b>아노테이션</span><span><b>7</b>데이터 구성</span><span><b>8</b>모델 비교</span><span><b>9</b>학습·평가</span><span><b>10</b>외부검증</span><span><b>11</b>원고</span>
+  </div>
+</div></header>
+
+<div class="wrap layout">
+<nav class="toc" aria-label="목차">
+  <a href="#prep">실습 전 준비</a><a href="#quick">빠른 시작</a><a href="#install">설치</a><a href="#prompt">Aside 프롬프트</a><a href="#steps">단계별 안내</a>
+  <a href="#concepts">꼭 알아야 할 개념</a><a href="#datasets">공개 데이터셋</a><a href="#trouble">문제 해결</a><a href="#check">진행 체크리스트</a><a href="#files">키트 구성·출처</a>
+</nav>
+<main>
+
+<div class="note"><b>이 페이지는 온라인 안내서입니다.</b> 직접 실행하려면 <b>SurgVision 실습 키트</b>(SurgVisionStudio 앱, example_videos, example_reference_labels.zip)가 필요합니다. <a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener"><b>실습 키트 내려받기 (Google Drive, ZIP 2.5MB)</b></a> → 압축을 풀어 바탕화면 등 찾기 쉬운 곳에 두고, 아래 <a href="#prep">실습 전 준비</a>부터 진행하세요. 예제 데이터는 CholecSeg8k 기반(CC BY-NC-SA 4.0, 비상업)이며 출처는 키트 안 DATA_SOURCE.md에 있습니다.</div>\n<h2 id="prep">실습 전 준비 — Aside 설치와 AI 연결</h2>
+<p>실습 안내는 Aside 브라우저가 맡습니다. Aside가 화면을 보고 설명하려면 AI 모델이 연결되어 있어야 하므로, <b>실습 당일 전에</b> 아래 세 가지를 끝내 두세요.</p>
+<div class="grid">
+  <div class="card"><h3>① Aside 내려받기</h3>
+    <p><a href="https://aside.com/download" target="_blank" rel="noopener">aside.com/download</a>에서 설치합니다. 공식 도움말 기준 <b>macOS 15.0 이상</b>을 지원합니다. Windows 버전은 다운로드 페이지에서 지원 여부를 확인하세요.</p></div>
+  <div class="card"><h3>② 로그인하고 시작 설정</h3>
+    <p>Aside를 열고 계정을 만들거나 로그인합니다. 기존 브라우저의 북마크·방문 기록 가져오기는 선택입니다. 자세한 순서: <a href="https://docs.aside.com/help/get-started" target="_blank" rel="noopener">Get started 도움말</a></p></div>
+  <div class="card"><h3>③ ChatGPT 또는 Claude 연결</h3>
+    <p><b>Settings → Models → Providers → Connect</b>에서 <b>Subscription</b> 아래 <b>ChatGPT Subscription</b>(Plus/Pro) 또는 <b>Claude Subscription</b>(Pro/Max)을 고르고, 뜨는 창에서 로그인을 마칩니다. 구독이 없으면 Aside 무료 플랜 모델이나 API 키로도 됩니다. <a href="https://docs.aside.com/help/ai" target="_blank" rel="noopener">AI 연결 도움말</a></p></div>
+</div>
+<div class="note"><b>연결 확인:</b> Aside 대화창에 "지금 연결된 모델이 뭐야?"라고 물어 답이 오면 준비 완료입니다. <b>Settings → Models → Task models</b>에서 기본 모델을 바꿀 수 있습니다. 연결한 ChatGPT·Claude 구독 사용량은 각 서비스 계정에서 차감되고, Aside 자체 크레딧과는 따로 계산됩니다.</div>
+
+<h2 id="quick">빠른 시작 — 3단계</h2>
+<div class="grid">
+  <div class="card"><h3>① Studio 켜기</h3><p><a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener">키트를 내려받아</a> 압축을 푼 뒤 <code>SurgVisionStudio/studio/start_studio.command</code>를 더블클릭(맥) 또는 <code>start_studio.bat</code>(윈도우). 브라우저에 <code>http://localhost:8501</code>이 열립니다. 처음이면 아래 <a href="#install">설치</a>부터.</p></div>
+  <div class="card"><h3>② Aside에 프롬프트 붙여 넣기</h3><p>Aside 브라우저를 열고 아래 <a href="#prompt">전체 실습 프롬프트</a>를 <b>복사해 대화창에 한 번에</b> 붙여 넣습니다. Aside가 아이디어를 묻고 0단계부터 안내합니다.</p></div>
+  <div class="card"><h3>③ 내 영상 또는 예제로 따라가기</h3><p>영상·IRB가 아직 없으면 <code>example_videos/</code>(공개 데이터로 만든 모의 환자 영상 5개)로 같은 흐름을 그대로 연습합니다. 약 2~3시간.</p></div>
+</div>
+<div class="warn"><b>환자 영상의 원칙.</b> 원본 영상과 대응표(<code>linkage.csv</code>)는 어떤 웹사이트에도 올리지 않습니다. Studio는 영상을 <b>폴더 경로로 읽기만</b> 하고 모든 결과를 이 컴퓨터의 <code>~/SurgVisionProjects/</code>에 저장합니다. 클라우드 CVAT·Colab은 거버넌스(3단계)에서 허용된 경우에만, 비식별 프레임만 사용합니다.</div>
+
+<h2 id="install">설치 (처음 한 번)</h2>
+<div class="card">
+<h3>필요한 것</h3>
+<ul>
+  <li>Python 3.10 이상과 패키지: torch, torchvision, streamlit, numpy, pillow, matplotlib, scipy. Anaconda가 있으면 대부분 이미 있습니다.</li>
+  <li>ffmpeg (영상에서 프레임 추출) — 맥은 Homebrew로 설치</li>
+  <li>CVAT 계정(분할 아노테이션 시) — <a href="https://app.cvat.ai/" target="_blank" rel="noopener">app.cvat.ai</a> 또는 원내 CVAT</li>
+  <li>Aside 브라우저와 ChatGPT 또는 Claude 연결 — <a href="#prep">실습 전 준비</a> 참고. 없어도 이 안내서만으로 진행할 수 있습니다.</li>
+</ul>
+<div class="copy"><button data-copy="install-mac">복사</button><pre id="install-mac"># 맥 터미널
+brew install ffmpeg
+cd "키트를 둔 폴더/SurgVisionStudio/studio"
+python3 -m pip install -r requirements.txt
+python3 -m streamlit run app.py</pre></div>
+<div class="copy"><button data-copy="install-win">복사</button><pre id="install-win">:: 윈도우 (Anaconda Prompt)
+conda install -c conda-forge ffmpeg
+cd "키트를 둔 폴더\SurgVisionStudio\studio"
+pip install -r requirements.txt
+python -m streamlit run app.py</pre></div>
+<p>GPU가 없어도 됩니다. 예제(432프레임) 기준 맥북 CPU/MPS에서 학습 1회 약 1~5분. 큰 데이터는 9단계의 'Colab용 묶음'으로 GPU를 쓸 수 있습니다(클라우드 허용 시).</p>
+</div>
+
+<h2 id="prompt">Aside 전체 실습 프롬프트</h2>
+<div class="note">아래 전체를 복사해 <b>Aside 대화창</b>에 붙여 넣으세요. CVAT 작업 설명란이나 코드 셀에 넣는 것이 아닙니다. 파일로도 있습니다: <a href="ASIDE_전체실습_PROMPT.txt">ASIDE_전체실습_PROMPT.txt</a></div>
+<div class="card prompt copy"><button data-copy="prompt-all">전체 복사</button><pre id="prompt-all">당신은 Aside 브라우저에서 수술영상 AI 연구 실습을 처음부터 끝까지 진행하는 한국어 튜터입니다. 나는 외과의사이고 AI 모델을 직접 만들어 본 적이 없습니다. 아래 내용을 요약하는 대신, 먼저 내 연구 아이디어를 물어보고 0단계부터 시작해 주세요.
+
+도구와 주소
+- SurgVision Studio: 내 컴퓨터에서 실행한 웹앱, 보통 http://localhost:8501 . 왼쪽 메뉴의 0~11단계를 순서대로 진행합니다. 앱이 안 열려 있으면 실습 키트의 start_studio.command(맥) 또는 안내서의 실행 방법대로 내가 켜도록 안내하고 기다리세요.
+- CVAT: 분할 아노테이션용. 거버넌스 결정이 클라우드 허용이면 https://app.cvat.ai/ , 아니면 원내 CVAT 주소를 나에게 물어보세요.
+- 안내서: 실습 키트의 시작하기.html (공개 데이터셋 표, 용어, 문제 해결).
+- 예제: 내 영상이 아직 없으면 키트의 example_videos/ (공개 CholecSeg8k로 만든 모의 환자 영상 5개, linkage.csv 포함)와 example_reference_labels.zip 으로 같은 흐름을 연습합니다.
+
+진행 방식
+- 단계마다 &#x27;현재 위치 → 이번 목적 → 당신이 한 일 → 내가 할 일 → 완료 확인&#x27; 순서로 짧게 말하세요. 한 번에 조작 1~3개만 안내하고, 버튼 이름·화면 위치·누르면 생기는 변화를 알려주세요.
+- 화면을 실제로 볼 수 있는지 먼저 확인하세요. 입력·클릭·선택은 가능한 범위에서 직접 하고, 일상적인 클릭마다 허락을 묻지 마세요. 볼 수 없으면 그 사실을 먼저 알리고 내 설명·스크린샷으로 수동 안내하세요.
+- 로그인·인증·결제는 내가 합니다. 비밀번호를 대화에 쓰게 하지 마세요. 유료 플랜·체험판 버튼은 누르지 마세요.
+- 판단은 내가 합니다: 연구 질문, 클래스 정의, 경계 규칙, 제외할 화면, 칠할 영역, 결과 해석. 의학적 정답을 단정하지 마세요.
+- Studio 화면에 실제로 나온 값만 기록하세요. 확인한 것 / 내가 말한 것 / 미확인을 구분하세요. 저장·다운로드·완료를 추측으로 선언하지 마세요. 오류가 나면 화면의 마지막 오류 문장을 그대로 보여주고 다음 단계로 넘어가지 마세요.
+- 오래 걸리는 작업(추출, 학습, 모델 비교)이 돌아가는 동안 같은 버튼을 다시 누르지 마세요.
+- 나는 &#x27;완료&#x27;, &#x27;다음&#x27;, &#x27;어디인지 모르겠어요&#x27;, &#x27;되돌려주세요&#x27;, &#x27;잠시 멈춤&#x27;, &#x27;이어하기&#x27;라고 답할 수 있습니다. 멈춤이면 저장 상태와 재개 위치를 알려주세요.
+
+절대 원칙 (단계마다 필요하면 다시 말해 주세요)
+1. 원본 영상과 linkage.csv(원래 파일명↔연구번호)는 어떤 웹사이트에도 올리지 않습니다. Studio는 폴더 경로로 읽습니다.
+2. 아노테이션하지 않은 프레임은 음성 정답이 아닙니다. &#x27;대상 없음&#x27;은 사람이 확인한 프레임만.
+3. 환자 단위로 학습/검증/시험을 나눕니다. 같은 환자가 두 곳에 있으면 앱이 멈춥니다.
+4. 모델 고르기는 검증 자료로만. 시험 자료는 마지막에 한 번. 결과를 보고 설정을 바꿔 다시 돌렸다면 원고에 적습니다.
+5. 서로 떨어진 프레임에 CVAT 보간·추적을 쓰지 않습니다.
+6. 시험 환자 5명 미만이면 결과는 가능성 확인(feasibility)입니다.
+
+0단계 아이디어 듣기 (대화)
+내 아이디어를 들은 뒤 다음을 한 번에 하나씩 물어 정리하세요: 어떤 수술(개복/복강경/로봇/내시경/현미경), 무엇을 알고 싶은지, 모델이 쓰일 장면(수술 후 검토·교육·실시간 보조), 가진 영상 수, IRB 상태. 그리고 내 질문을 아래 셋 중 하나로 바꿔 제안하세요. 내가 고릅니다.
+- 분할: &quot;화면 어디에 ○○가 있나&quot; (해부 구조, 위험 구조, 기구)
+- 프레임 분류(태그): &quot;이 장면은 ○○ 상태인가&quot; (안전 확인 달성, 출혈 유무, 시야 질)
+- phase 구간 분류: &quot;지금 어느 단계인가&quot;
+v1 범위 밖(박스 검출, 추적, 시간 맥락 모델)이면 가장 가까운 형태로 바꾸고 바꾼 점을 말해 주세요. 공개 데이터로 먼저 연습하고 싶다고 하면 안내서의 공개 데이터셋 표에서 내 수술과 가까운 것을 찾아 주세요(라이선스와 접근 방법 포함, 표에 없는 데이터셋을 지어내지 마세요).
+
+1단계 설계 (Studio 1. 아이디어 → 설계)
+폼을 함께 채웁니다. 제목, 수술 종류, 영상 종류, 연구 질문, 과제 유형, 클래스 이름(영문 소문자 — CVAT 라벨과 글자까지 같아야 함), 클래스별 정의(보이는 것만인지 추정 포함인지 명시), 경계 규칙 3개 이상(내가 칠하거나 고를 때 망설이는 지점: 기구 가림, 연기, 반사광, 장막 경계 등), 세 가지 체크(대상 없는 프레임이 흔한가, 대상이 작은가, 드물지만 중요한 클래스가 있나), 데이터 출처, 계획 환자 수, 추출 fps, 영상당 아노테이션 장수, 판독자 수, 이중판독 비율. &#x27;설계 저장&#x27; 후 화면의 추천 지표와 이유, 아노테이션 예상 시간을 읽어 주고, 시간이 너무 길면 장수를 줄일지 묻습니다.
+
+2단계 필요한 건수 (Studio 2)
+신뢰구간 폭(±)을 내가 정하게 하고 &#x27;계산&#x27;. 필요한 시험 환자 수와 설계효과를 설명하세요(같은 환자의 프레임은 서로 비슷해서 독립 정보가 적다). 현재 계획이 부족하면 환자를 늘릴지, feasibility로 보고할지 내가 고릅니다. 학습에 필요한 환자 수는 9단계 학습곡선으로 나중에 추정한다고 말해 주세요.
+
+3단계 거버넌스 (Studio 3)
+IRB 상태, 근거 문서명(번호는 쓰지 않음), 외부 클라우드 허용 여부(모르면 &#x27;아니오/모름&#x27;), 화면 글자 위치, 대응표 보관 책임자 역할, IRB에 물을 질문, 내 이니셜. 저장 후 &#x27;데이터 처리 가능&#x27; 표시를 확인하세요. 불가면 공개 데이터나 예제로 계속할지 묻습니다.
+
+4단계 데이터 (Studio 4)
+A탭: 원본 영상 폴더 경로를 입력(예제는 example_videos 폴더). 대응표가 뜨면 같은 환자 영상은 patient_id가 같은지 내가 확인합니다. 화면 글자가 있으면 x,y,w,h를 내가 정하게 하고 &#x27;프레임 추출 시작&#x27;. 끝나면 추출 프레임 수를 기록하세요.
+B탭: 이미 라벨이 있는 공개 데이터 폴더를 가져올 때 사용합니다(경로·패턴·정규식은 데이터셋 구조를 보고 함께 정합니다).
+
+5단계 화면 검토 (Studio 5)
+영상·페이지를 하나씩 넘기며 수술실·얼굴·모니터·서류·카메라 삽입 전후 장면을 내가 체크합니다. 🔴는 색 기반 후보일 뿐입니다(개복·현미경 영상은 후보 표시 없음). 모든 영상을 본 뒤 내 이니셜로 &#x27;검토 완료로 저장&#x27;.
+
+6단계 아노테이션 (Studio 6)
+먼저 라벨 정의서를 함께 읽습니다.
+- 분할: ① &#x27;영상별 배치 ZIP 만들기&#x27; → ZIP을 내려받아 CVAT에 영상 하나당 Task 하나로 올립니다(이름 &lt;프로젝트&gt;_&lt;영상번호&gt;, 라벨 이름 그대로, Project 없음, 정렬 Lexicographical). Job을 열어 첫 2장은 자세히 안내하세요: Brush로 칠하기, Polygon selection으로 넓게 채우기, Eraser, Save mask(마스크 확정)와 상단 Save(작업 저장)의 차이. 대상이 없는 프레임은 칠하지 말고 이름을 적어 둡니다. SAM 같은 AI 보조는 손으로 2장 해본 뒤에만, 쓰면 기록합니다. 끝나면 Actions → Export task dataset → Segmentation Mask 1.1, Save images 끔. ② Studio로 돌아와 출처를 고르고 export를 가져옵니다. 예제라면 &#x27;공개 참조 라벨&#x27;로 example_reference_labels.zip을 먼저, 그다음 &#x27;내 라벨&#x27;로 내 export를. ③ 일치도: 공개 참조 vs 내 라벨(또는 판독자 1 vs 2)의 Dice를 계산하고, 가장 낮은 프레임을 같이 보며 정의서를 고칠 점이 있는지 내가 판단합니다.
+- 프레임 분류: Studio 안 태거에서 프레임마다 클래스 버튼 하나, 애매하면 &#x27;판단 보류&#x27;. 끝나면 &#x27;태그를 학습 데이터로 적용&#x27;.
+- phase 구간: 표에 영상별 시작·끝 초와 phase를 적고 &#x27;구간 저장·적용&#x27;. 애매한 전환 구간은 비웁니다.
+완료 기록: 영상별 아노테이션 장수, 판단 보류, 대상 없음 확인 수, 일치도.
+
+7단계 데이터 구성 (Studio 7)
+비율과 시험군 방식(무작위 / 고정: 나중 수술일 환자 = 시간적 검증)을 내가 고르고 &#x27;분할하고 점검&#x27;. leakage none, 환자·프레임 수, 경고(시험셋에 없는 클래스, 한 환자 쏠림, 드문 클래스, 라벨 출처 섞임)를 읽어 주세요. 경고가 있으면 무엇을 바꿀 수 있는지 설명하고 내가 결정합니다.
+
+8단계 모델 후보 비교 (Studio 8)
+후보 표를 읽어 주고(가벼운 모델 vs 무거운 모델, CPU/GPU), 후보·epoch·fold를 내가 정합니다. 시험 자료는 쓰지 않는다는 점을 확인하고 &#x27;비교 시작&#x27;. 리더보드와 선택 이유를 읽고 &#x27;학습 설정에 반영&#x27;.
+
+9단계 학습·평가 (Studio 9)
+&#x27;학습 시작&#x27;. 끝나면 가중치 변경 ✔, 재로딩 검증 ✔를 먼저 확인하고, 표·학습곡선·점수 분포·예시 그림을 순서대로 보여주세요.
+- 분할: Dice와 IoU를 한 문장씩 설명하고, &#x27;통째로 놓친 이미지 / 없는데 그린 이미지&#x27; 수를 따로 읽습니다. worst 예시에서 내가 오류 유형 하나를 말하게 하세요.
+- 분류: accuracy와 balanced accuracy의 차이, 클래스별 recall·precision·AUROC, 혼동행렬에서 가장 헷갈린 두 클래스.
+- † 표시는 시험 환자가 적어 신뢰구간을 믿을 수 없다는 뜻입니다.
+그다음 선택: &#x27;영상에 적용해 보기&#x27;(학습·검증에 안 쓴 영상), &#x27;학습곡선&#x27;(환자를 늘리면 얼마나 좋아지나 — 2단계 결과와 함께 다음 데이터 수집 계획을 세웁니다), GPU가 필요하면 &#x27;Colab용 묶음&#x27;(거버넌스가 클라우드 허용일 때만).
+
+10단계 외부검증 (Studio 10)
+외부검증은 다른 기관·시기·장비의 환자에서 고정된 모델을 평가하는 것이라고 설명하세요. 외부 데이터는 같은 클래스 이름의 다른 Studio 프로젝트로 1~7단계를 거쳐 준비합니다. 준비되면 그 프로젝트를 고르고 실행해 내부 시험과 외부 결과를 나란히 읽고, 차이가 크면 가능한 이유(장비, 술기, 라벨 기준, 환자군)를 내가 추론하게 하세요. 외부 데이터가 없으면 &#x27;외부검증 없음&#x27;으로 기록하고 한계에 넣습니다.
+
+11단계 결과·원고 (Studio 11)
+&#x27;원고 초안 만들기&#x27;. 모든 숫자 옆의 [출처]를 보여주고, 숫자는 고치지 않는다는 원칙을 확인하세요. feasibility 문구가 필요하면 들어갔는지 봅니다. 한계 체크리스트를 하나씩 내가 확인합니다. Introduction·Discussion은 개요만 있고, 참고문헌은 내가 PubMed에서 확인한 것만 넣습니다(당신이 만든 인용은 [확인 필요]). &#x27;결과 묶음&#x27; ZIP을 내려받았는지 실제로 확인하세요.
+
+최종 보고 (표)
+연구 질문과 과제, 클래스, 환자·프레임 수(학습/검증/시험), 필요한 시험 환자 수 vs 실제, 아노테이션 장수와 일치도, 선택 모델과 이유, 시험 1차 지표(신뢰구간·† 여부), 외부검증 결과 또는 없음, 원고 초안과 결과 ZIP 다운로드 여부, 막힌 단계와 내가 대신한 조작, 단계별 소요 시간. 확인하지 못한 값은 &#x27;미확인&#x27;. 마지막으로 다음 연구를 위해 무엇을(환자 수, 판독자, 외부 기관) 늘려야 하는지 한 문단으로 제안하세요.
+
+이제 내 연구 아이디어를 물어보며 0단계를 시작해 주세요.
+</pre></div>
+<h3>중간에 멈췄다가 이어서 할 때</h3>
+<div class="card copy"><button data-copy="prompt-resume">복사</button><pre id="prompt-resume">앞서 진행한 SurgVision 실습을 이어갑니다. Studio(http://localhost:8501) 왼쪽 메뉴에서 ✅가 붙은 단계와 현재 프로젝트를 먼저 확인하고, 첫 ⬜ 단계부터 재개해 주세요. 새 프로젝트를 만들지 마세요. 앞 단계의 결과 파일이 실제로 있는지 화면에서 확인한 뒤 진행해 주세요. 진행 원칙은 처음 붙여 넣은 전체 실습 프롬프트와 같습니다.</pre></div>
+
+<h2 id="steps">단계별 안내</h2>
+<p>Studio 왼쪽 메뉴의 번호와 같습니다. 각 단계는 결과 파일을 만들고, 파일이 생기면 ✅로 바뀝니다.</p>
+
+<div class="card step"><div class="num">1</div><div><h3>아이디어 → 설계 <span class="tag">pack.json</span></h3>
+<p>질문을 모델이 풀 수 있는 형태로 바꿉니다.</p>
+<div class="tablewrap"><table><tr><th>질문 모양</th><th>과제</th><th>예</th><th>아노테이션</th></tr>
+<tr><td>화면 <b>어디에</b> ○○가 있나</td><td>분할</td><td>간·담낭관·신경혈관다발·요관·되돌이후두신경, 기구</td><td>CVAT 마스크</td></tr>
+<tr><td>이 장면은 ○○ <b>상태</b>인가</td><td>프레임 분류(태그)</td><td>CVS 달성, 출혈 있음, 시야 불량</td><td>Studio 안 태거</td></tr>
+<tr><td><b>언제</b>부터 언제까지</td><td>phase 구간 분류</td><td>박리→클립→절제→적출</td><td>구간 표</td></tr></table></div>
+<ul><li><b>클래스 정의</b>는 "보이는 것만 칠한다/추정 포함" 중 하나를 분명히.</li>
+<li><b>경계 규칙 3개 이상</b> — 칠할 때 망설이는 지점(기구 가림, 연기, 반사광, 장막 경계)을 미리 정합니다. 이것이 라벨 품질의 대부분을 결정합니다.</li>
+<li>체크 3개(대상 없는 프레임이 흔한가 / 작은 구조인가 / 드물지만 중요한 클래스)로 <b>지표가 자동 추천</b>됩니다(Metrics Reloaded 원칙).</li>
+<li>아노테이션 예상 시간이 표시됩니다. 분할은 장당 1~3분.</li></ul></div></div>
+
+<div class="card step"><div class="num">2</div><div><h3>의미 있는 건수 <span class="tag">sample_size/</span></h3>
+<ul><li><b>시험 환자 수</b>: 결과의 95% 신뢰구간을 ±얼마로 할지 정하면 계산됩니다. 같은 환자의 프레임은 서로 비슷하므로 <i>설계효과</i> = 1 + (환자당 프레임−1)×ICC 만큼 더 필요합니다. 그래서 <b>프레임을 늘리는 것보다 환자를 늘리는 것</b>이 효과적입니다.</li>
+<li><b>학습 환자 수</b>는 미리 알 수 없습니다. 파일럿 후 9단계 <b>학습곡선</b>(환자 수를 늘려 가며 다시 학습 → 곡선 외삽)으로 "몇 명 더 모으면 목표에 닿는가"를 추정합니다.</li>
+<li>시험 환자 5명 미만이면 결과는 <b>feasibility</b>로만 보고합니다.</li></ul></div></div>
+
+<div class="card step"><div class="num">3</div><div><h3>거버넌스·비식별 <span class="tag">governance_decision.json</span></h3>
+<ul><li>IRB 상태, 외부 클라우드 허용 여부(모르면 '아니오'), 화면 글자 위치, 대응표 보관자.</li>
+<li>비식별 네 겹: 파일명→연구번호 · 메타데이터 제거 · 화면 글자 가림 · 체내 밖/식별 화면 사람 전수 검토.</li>
+<li>IRB 승인(또는 면제 확인) 전에는 4단계가 잠깁니다. 그동안 공개 데이터·예제로 연습하세요.</li></ul></div></div>
+
+<div class="card step"><div class="num">4</div><div><h3>데이터 넣기 <span class="tag">frames/</span></h3>
+<ul><li><b>A. 영상 → 프레임</b>: 영상 폴더 경로 입력 → 대응표 확인(같은 환자 영상은 같은 patient_id; 수술일 순 번호면 시간적 검증 가능) → 추출. 초당 1장이 기본.</li>
+<li><b>B. 라벨 있는 이미지 폴더</b>: 공개 데이터셋처럼 이미 정답이 있는 경우. 파일 경로에서 영상 번호를 읽는 정규식을 지정합니다.</li></ul></div></div>
+
+<div class="card step"><div class="num">5</div><div><h3>화면 검토 <span class="tag">비식별 확인</span></h3>
+<p>수술실·얼굴·모니터·서류·카메라 삽입 전후 장면을 모두 체크해 제외합니다. 🔴 표시는 색 기반 <i>후보</i>일 뿐이며, 개복·현미경 영상은 후보 표시 없이 전부 봅니다.</p></div></div>
+
+<div class="card step"><div class="num">6</div><div><h3>아노테이션 <span class="tag">labeled/</span></h3>
+<ul><li><b>분할</b>: Studio가 영상별 배치 ZIP을 만들어 줍니다 → CVAT에 영상 하나당 Task 하나 → Brush/Polygon으로 칠하기 → <i>Save mask</i>(마스크 확정)와 상단 <i>Save</i>(작업 저장) → Export <b>Segmentation Mask 1.1</b>(Save images 끔) → Studio에서 가져오기.
+<br><a href="https://docs.cvat.ai/docs/annotation/manual-annotation/shapes/annotation-with-brush-tool/" target="_blank" rel="noopener">CVAT Brush 안내</a> · <a href="https://docs.cvat.ai/docs/dataset_management/export-datasets/" target="_blank" rel="noopener">CVAT 내보내기</a> · <a href="https://docs.cvat.ai/docs/annotation/auto-annotation/ai-tools/" target="_blank" rel="noopener">CVAT AI 보조(SAM 등)</a></li>
+<li><b>보간·Track·자동 추적 금지</b>: 서로 떨어진 프레임이라, 아무도 그리지 않은 마스크가 정답처럼 내보내집니다.</li>
+<li><b>AI 보조(SAM)</b>는 손으로 2장 해본 뒤 선택적으로, 사용 여부를 기록.</li>
+<li><b>분류</b>: Studio 안 태거(클래스 버튼 / 판단 보류). <b>phase</b>: 구간 표.</li>
+<li><b>일치도</b>: 판독자 2명(또는 내 라벨 vs 공개 참조 라벨)의 Dice/kappa. 낮은 프레임을 보며 정의서를 다듬습니다.</li>
+<li>예제 연습: '공개 참조 라벨'로 <code>example_reference_labels.zip</code>을 먼저, 그다음 '내 라벨'로 내가 V01 영상 몇 장을 칠한 export를 가져옵니다.</li></ul></div></div>
+
+<div class="card step"><div class="num">7</div><div><h3>데이터 구성 <span class="tag">split/ · audit/</span></h3>
+<ul><li>환자 단위 분할(누수 자동 검사). 시험군은 무작위 또는 <b>고정</b>(나중 수술일 환자 = 시간적 검증).</li>
+<li>점검표 경고: 시험셋에 없는 클래스, 한 환자 쏠림, 드문 클래스(&lt;5%), 라벨 출처가 섞인 시험셋.</li></ul></div></div>
+
+<div class="card step"><div class="num">8</div><div><h3>모델 후보 비교 <span class="tag">search/</span></h3>
+<p>분할: U-Net(ResNet18/34), LR-ASPP·DeepLabV3(MobileNet), DeepLabV3(ResNet50). 분류: ResNet18/50, EfficientNet-B0, MobileNetV3, ConvNeXt-Tiny. 같은 조건으로 짧게 학습해 <b>검증 점수로만</b> 비교하고, 차이가 작으면 더 가벼운 모델을 고릅니다. 환자가 적으면 fold 교차검증을 켜세요.</p></div></div>
+
+<div class="card step"><div class="num">9</div><div><h3>학습·평가 <span class="tag">runs/</span></h3>
+<ul><li>검증으로 가장 좋은 epoch 선택 → 모델 다시 불러와 확인 → <b>시험 1회</b>.</li>
+<li>분할: 이미지별 Dice 평균 + 환자 단위 bootstrap 95% CI, IoU, <b>통째로 놓친 이미지·없는데 그린 이미지 수</b>. 분류: balanced accuracy, macro F1, 클래스별 recall·precision·AUROC, 혼동행렬.</li>
+<li>worst 예시를 꼭 보고 오류 유형을 적어 두세요. 영상 적용(overlay/타임라인), 학습곡선, Colab 묶음은 선택.</li></ul></div></div>
+
+<div class="card step"><div class="num">10</div><div><h3>외부검증 <span class="tag">external/</span></h3>
+<p>학습·선택에 전혀 쓰지 않은 <b>다른 기관·시기·장비</b> 환자에 <b>고정된</b> 모델을 적용합니다(재학습·조정 없음). 외부 데이터는 같은 클래스 이름의 다른 Studio 프로젝트로 1~7단계를 거쳐 준비합니다. 내부 vs 외부 표가 나옵니다. 성능이 떨어지면 장비·술기·라벨 기준·환자군 차이를 검토합니다.</p></div></div>
+
+<div class="card step"><div class="num">11</div><div><h3>결과·원고 <span class="tag">manuscript_draft.md</span></h3>
+<p>모든 숫자 옆에 <code>[출처 파일: 키]</code>가 붙은 초안이 생성됩니다(Methods·Results·한계 체크리스트). Introduction·Discussion은 개요만 — 참고문헌은 PubMed에서 확인한 것만. 보고 지침: TRIPOD+AI, CLAIM 2024. 결과 묶음 ZIP에는 원본 영상·대응표가 들어가지 않습니다.</p></div></div>
+
+<h2 id="concepts">꼭 알아야 할 개념</h2>
+<div class="grid">
+<div class="card"><h3>학습 / 검증 / 시험</h3><p>학습=정답을 보며 가중치를 바꾸는 자료, 검증=모델·epoch를 고르는 자료, 시험=마지막에 한 번 성능을 재는 자료. 시험을 보고 설정을 바꾸면 시험이 검증이 됩니다.</p></div>
+<div class="card"><h3>환자 단위 분할</h3><p>같은 수술의 프레임은 거의 같습니다. 한 환자가 학습과 시험에 동시에 있으면 점수는 '기억력'을 잰 것이 됩니다.</p></div>
+<div class="card"><h3>Dice / IoU</h3><p>Dice = 2×겹친 면적 ÷ (예측+정답), IoU = 겹친 면적 ÷ 합친 면적. 평균이 높아도 작은 구조를 통째로 놓친 이미지가 있을 수 있어 따로 셉니다.</p></div>
+<div class="card"><h3>Balanced accuracy</h3><p>클래스별 정답률의 평균. 한 클래스가 90%면 "전부 그 클래스"라고만 해도 정확도 90%가 나오므로 이 지표를 씁니다.</p></div>
+<div class="card"><h3>아노테이션 ≠ 음성</h3><p>칠하지 않은 프레임은 '없음'이 아니라 '모름'입니다. '대상 없음'은 사람이 확인한 목록으로만 인정합니다.</p></div>
+<div class="card"><h3>내부 시험 vs 외부검증</h3><p>내부 시험=같은 기관 다른 환자. 외부검증=다른 기관·시기·장비. 일반화를 말하려면 외부검증이 필요합니다.</p></div>
+<div class="card"><h3>Feasibility</h3><p>시험 환자 5명 미만, 단일 판독자, 외부검증 없음 → "가능성 확인" 연구. 성능·유용성 주장은 하지 않습니다.</p></div>
+<div class="card"><h3>보간을 쓰지 않는 이유</h3><p>CVAT 보간은 원본 시간 간격이 아니라 업로드 순번만 봅니다. 몇 분 떨어진 프레임 사이에 모양을 옮겨, 아무도 그리지 않은 정답이 생깁니다.</p></div>
+</div>
+
+<h2 id="datasets">공개 수술영상 데이터셋 (검증일 2026-10-17)</h2>
+<p>내 수술과 가까운 공개 데이터로 먼저 연습하거나, 외부검증 세트로 쓸 수 있습니다. <b>사용 전 라이선스·접근 조건을 원문에서 다시 확인</b>하세요. 대부분 비상업(NC)이며 재배포 금지·가입·DUA가 필요한 경우가 있습니다. 전체 표: <a href="공개데이터셋.md">공개데이터셋.md</a></p>
+<div class="filters"><input id="dsq" type="search" placeholder="검색: 수술, 구조, 라벨…" aria-label="데이터셋 검색"><select id="dsf" aria-label="수술 계열"><option value="">모든 수술 계열</option></select><select id="dsm" aria-label="쓰는 방법"><option value="">모든 방법</option><option value="seg">seg</option><option value="tag">tag/interval</option><option value="video">video only</option></select></div>
+<div class="tablewrap"><table id="dstable"><thead><tr><th>수술 계열</th><th>데이터셋</th><th>라벨</th><th>규모</th><th>라이선스</th><th>방법</th></tr></thead><tbody></tbody></table></div>
+<p id="dscount" style="color:var(--muted);font-size:14px"></p>
+
+<h2 id="trouble">문제 해결</h2>
+<div class="tablewrap"><table>
+<tr><th>증상</th><th>할 일</th></tr>
+<tr><td>start_studio가 "Python을 찾지 못했습니다"</td><td><a href="#install">설치</a>의 pip 명령을 실행. Anaconda가 있으면 그 python으로 실행.</td></tr>
+<tr><td>프레임 추출이 바로 실패</td><td>ffmpeg 설치 확인(<code>ffmpeg -version</code>). 대응표에 모든 영상 파일명이 있는지.</td></tr>
+<tr><td>"[STOP] CVAT labels … not in config.class_names"</td><td>CVAT 라벨 이름과 1단계 클래스 이름의 글자·대소문자를 똑같이.</td></tr>
+<tr><td>가져왔는데 annotated 0</td><td>Export 형식이 Segmentation Mask 1.1인지, 마스크 확정 후 작업 Save를 했는지.</td></tr>
+<tr><td>"[STOP] patient leakage"</td><td>같은 환자의 영상이 다른 patient_id로 적혔는지 대응표 확인.</td></tr>
+<tr><td>ImageNet 가중치 다운로드 실패</td><td>인터넷 연결 후 재시도. 원내 PC가 막혀 있으면 '사전학습 사용'을 끄고 원고에 그 사실을 적습니다.</td></tr>
+<tr><td>학습이 너무 느림</td><td>8단계에서 가벼운 모델(LR-ASPP, MobileNet) 선택, epoch 축소, 또는 클라우드 허용 시 Colab 묶음.</td></tr>
+<tr><td>Dice가 0 근처</td><td>학습 프레임 수·클래스 이름·마스크 색 확인. 예시 그림에서 정답 마스크가 제대로 보이는지.</td></tr>
+<tr><td>Aside가 화면을 못 봄</td><td>스크린샷이나 화면 설명으로 수동 진행. 이 안내서의 단계별 설명만으로도 진행할 수 있습니다.</td></tr>
+</table></div>
+
+<h2 id="check">진행 체크리스트</h2>
+<p style="color:var(--muted);font-size:14px">이 브라우저에만 저장됩니다.</p>
+<div class="card check" id="checklist"></div>
+
+<h2 id="files">키트 구성과 출처</h2>
+<div class="tablewrap"><table>
+<tr><th>파일</th><th>용도</th></tr>
+<tr><td><code>시작하기.html</code></td><td>이 안내서</td></tr>
+<tr><td><code>ASIDE_전체실습_PROMPT.txt</code></td><td>Aside에 붙여 넣는 전체 실습 프롬프트</td></tr>
+<tr><td><code>SurgVisionStudio/studio/</code></td><td>웹앱(app.py), 실행 파일(start_studio.command / .bat), requirements.txt</td></tr>
+<tr><td><code>SurgVisionStudio/toolkit/</code></td><td>실제 처리 코드(추출·비식별·아노테이션 가져오기·분할·모델·학습·평가·외부검증·건수·원고)</td></tr>
+<tr><td><code>example_videos/</code></td><td>모의 환자 영상 5개 + linkage.csv (공개 CholecSeg8k 프레임을 1 fps 영상으로 재구성)</td></tr>
+<tr><td><code>example_reference_labels.zip</code></td><td>예제 영상의 공개 참조 간(liver) 마스크, CVAT Segmentation Mask 1.1 형식</td></tr>
+<tr><td><code>공개데이터셋.md</code> · <code>DATA_SOURCE.md</code></td><td>공개 데이터 카탈로그, 예제 데이터 출처·라이선스</td></tr>
+</table></div>
+<p>예제 데이터: Hong W-Y et al. <i>CholecSeg8k</i> (2020), <a href="https://arxiv.org/abs/2012.12453" target="_blank" rel="noopener">arXiv:2012.12453</a>, CC BY-NC-SA 4.0. 비상업·출처표기·동일조건. 원 실습 설계: 오남기 강사 CVAT·Colab 실습(2026-10). 지표 선택 원칙: Metrics Reloaded (Maier-Hein, Reinke et al., Nature Methods 2024).</p>
+<footer>SurgVision 실습 키트 · 이 결과 모델은 의료기기나 임상 판단 도구가 아닙니다. · 생성일 2026-10-20</footer>
+</main>
+</div>
+
+<script id="ds-data" type="application/json">[{"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "Cholec80", "labels": "Phase 7개(25 fps), 도구 유무(1 fps)", "size": "영상 80개(25 fps), 집도의 13명", "access": "직접 다운로드(s3.unistra.fr zip)", "license": "CC BY-NC-SA 4.0", "url": "https://camma.unistra.fr/datasets/", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "M2CAI16-workflow", "labels": "Phase(워크플로 인식)", "size": "영상 41개", "access": "요청서(Google Form) 제출", "license": "미확인", "url": "https://camma.unistra.fr/datasets/", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "M2CAI16-tool", "labels": "도구 검출(유무)", "size": "영상 15개", "access": "요청서(Google Form) 제출", "license": "미확인", "url": "https://camma.unistra.fr/datasets/", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "CholecSeg8k", "labels": "Semantic seg 13클래스: 배경, abdominal wall, liver, GI tract, fat, grasper, connective tissue, blood, cystic duct, L-hook electrocautery, gallbladder, hepatic vein, liver ligament", "size": "프레임 8,080장(Cholec80 클립 17개, 854×480)", "access": "Kaggle 다운로드(계정 필요)", "license": "CC BY-NC-SA 4.0 (Kaggle 표기)", "url": "https://www.kaggle.com/datasets/newslab/cholecseg8k", "use": "seg"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "CholecT50 (부분집합 CholecT45 포함)", "labels": "Action triplet <instrument, verb, target> 100종, phase, 영상 5개에 기구 끝 bbox", "size": "영상 50개(Cholec80 45개 + Cholec120 5개), 1 fps 라벨", "access": "GitHub의 Downloads 안내(README-Downloads) 따름", "license": "CC BY-NC-SA 4.0", "url": "https://github.com/CAMMA-public/cholect50", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "Endoscapes (CVS201 / BBox201 / Seg50)", "labels": "CVS 3기준(이미지 단위, 평가자 3명 평균), bbox와 seg 6클래스: gallbladder, cystic duct, cystic artery, cystic plate, hepatocystic triangle dissection, tool", "size": "영상 201개. CVS 프레임 11,090장, BBox 1,933장, Seg50 493장(영상 50개). Seg201은 비공개", "access": "직접 다운로드(s3.unistra.fr zip, COCO 형식)", "license": "CC BY-NC-SA 4.0", "url": "https://github.com/CAMMA-public/Endoscapes", "use": "seg + tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "HeiChole (EndoVis 2019 Workflow & Skill)", "labels": "Phase 7개, action 4종, 기구 21종(7범주) 유무, skill 5차원", "size": "영상 33개(3개 센터, 약 22시간)", "access": "Synapse에서 train 공개. test는 비공개(Docker 제출). 결과 발표 시 challenge 논문 인용 조건", "license": "미확인(페이지에 명시 없음)", "url": "https://www.synapse.org/heichole", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "Cholec80-CVS", "labels": "Strasberg CVS 3기준을 구간별로 0–2점 채점, 총점과 CVS 달성 여부", "size": "Cholec80 영상 80개 전체(라벨은 XLSX, 영상은 CAMMA에서 별도로 받음)", "access": "Figshare 라벨 다운로드 + Cholec80 별도 확보", "license": "라벨 데이터 라이선스는 미확인(논문 CC BY 4.0, 코드 MIT)", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10082817/", "use": "tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "CholecTrack20", "labels": "다중 기구 tracking(bbox, track ID) 7종, 조작자(operator), phase, 시각 조건(가림·출혈·연기)", "size": "영상 20개, 1 fps 약 35K 프레임, 기구 인스턴스 65K", "access": "DUA 동의 후 요청서 제출 → accesskey 받아 Synapse에서 다운로드", "license": "CC BY-NC-SA 4.0", "url": "https://github.com/CAMMA-public/cholectrack20", "use": "tag/interval (bbox)"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "CholecInstanceSeg", "labels": "기구 instance seg 7종(Grasper, Bipolar, Hook, Clipper, Scissors, Irrigator, Snare)", "size": "프레임 41.9k장, 수술 85건, 인스턴스 64.4k", "access": "Synapse에서 라벨(syn60239970) 받고, 이미지는 Cholec80·CholecT50·CholecSeg8k에서 받아 합침", "license": "데이터 라이선스 미확인(repo는 Apache-2.0. 원본 이미지는 각 원 데이터셋 라이선스를 따름)", "url": "https://github.com/cai4cai/cholec_instance_seg", "use": "seg"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "PhaKIR", "labels": "Phase 8개, 기구 instance seg 19종, 기구 keypoint", "size": "영상 8개(3개 병원), seg와 keypoint 프레임 19,435장, phase 프레임 485,875장", "access": "Zenodo 로그인 후 접근 요청서 제출 → 승인 메일(restricted)", "license": "CC BY-NC-SA 4.0", "url": "https://zenodo.org/records/15740620", "use": "seg + tag/interval"}, {"family": "복강경 담낭절제술 (Laparoscopic cholecystectomy)", "name": "SAGES CVS Challenge 2024", "labels": "CVS 평가(전문가 20명, 평가자 3명 신뢰도 컬럼)", "size": "영상 1,000개(논문 기준)", "access": "Hugging Face 데이터셋 페이지(접근 조건 미확인)", "license": "미확인(논문만 CC BY-NC-SA 4.0으로 표기)", "url": "https://huggingface.co/datasets/CAMMA-public/SAGES_CVS_Challenge_2024", "use": "tag/interval"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "EndoVis 2017 Robotic Instrument Segmentation", "labels": "기구 binary seg, parts seg(shaft/wrist/clasper), type seg 7종", "size": "학습 8개 시퀀스 × 225프레임(2 Hz), 테스트 8×75 + 2×300프레임", "access": "Grand Challenge 가입(Join) 후 Data/Downloads 이용", "license": "데이터 라이선스 명시 없음(Grand Challenge ToS만 있음) → 미확인", "url": "https://endovissub2017-roboticinstrumentsegmentation.grand-challenge.org/", "use": "seg"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "EndoVis 2018 Robotic Scene Segmentation", "labels": "Scene seg: 로봇 기구 파트, drop-in 초음파 probe, suturing needle, thread, clamp 등 + 해부구조(kidney parenchyma, covered kidney, small intestine). 총 10클래스", "size": "19개 시퀀스, 각 300프레임(1 Hz)", "access": "Grand Challenge 가입 후 Data/Downloads 이용", "license": "미확인", "url": "https://endovissub2018-roboticscenesegmentation.grand-challenge.org/", "use": "seg"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "SAR-RARP50 (EndoVis 2022)", "labels": "봉합 action 인식(needle pick-up, pulling, knot tying, cutting 등. 클래스 수 미확인, 10 Hz), 기구 seg 9클래스(기구 파트 shaft/wrist/clasper + needle, thread, clip 등)", "size": "봉합 영상 50개(train 40, test 10), seg 프레임 train 12,998장 / test 3,252장", "access": "UCL RDR에서 직접 다운로드(train 약 27 GB)", "license": "CC BY-NC-SA 4.0", "url": "https://rdr.ucl.ac.uk/projects/SAR-RARP50_Segmentation_of_surgical_instrumentation_and_Action_Recognition_on_Robot-Assisted_Radical_Prostatectomy_Challenge/191091", "use": "seg + tag/interval"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "PSI-AVA", "labels": "Phase, step, 기구 검출, atomic visual action", "size": "수량 미확인(fold 2개 구성)", "access": "wget 직접 다운로드(157.253.243.19) 또는 Google Drive", "license": "데이터 라이선스 미확인(repo 표기는 MIT)", "url": "https://github.com/BCV-Uniandes/TAPIR", "use": "tag/interval"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "GraSP (PSI-AVA 확장판)", "labels": "Phase, step, 기구 seg(픽셀), atomic action", "size": "영상 13개(30 fps, 총 32.37시간)", "access": "Google Drive 폴더(GraSP_30fps 등)", "license": "데이터 라이선스 미확인(코드는 MIT로 명시)", "url": "https://github.com/BCV-Uniandes/GraSP", "use": "seg + tag/interval"}, {"family": "로봇 비뇨기 수술 (전립선절제·신장절제)", "name": "SurgVU (SurgVU24/25)", "labels": "도구 설치·제거 시점(로봇 로그 기반, noisy), task 8종 구간, 테스트셋 bbox·step, VQA", "size": "학습 영상 280개(155세션, 60 fps 720p, 840시간 이상)", "access": "Google Cloud Storage zip 다운로드(논문에 링크)", "license": "데이터 라이선스 미확인(논문만 CC BY 4.0)", "url": "https://surgvu25.grand-challenge.org/data-description/", "use": "tag/interval"}, {"family": "부인과 수술 (자궁절제 등)", "name": "AutoLaparo", "labels": "Phase 7개(전체 영상), 복강경 motion 7종(클립 300개), seg: uterus + 기구 4종(manipulator와 shaft 구분)", "size": "영상 21개(약 23시간), seg 프레임 1,800장(주석 5,936개)", "access": "요청서 제출 → 다운로드 링크 수령", "license": "CC BY-NC-SA 4.0 (학술 연구만)", "url": "https://autolaparo.github.io/", "use": "seg + tag/interval"}, {"family": "부인과 수술 (자궁절제 등)", "name": "LapGyn4 (v1.2)", "labels": "이미지 분류: surgical action 8종, 해부구조 5종(colon, liver, ovary, oviduct, uterus), action-on-anatomy 4종, 기구 개수 0–3", "size": "500건 이상 수술. 이미지 약 30,682 / 2,728 / 4,787 / 21,424장, 약 11 GB", "access": "직접 다운로드(ftp.itec.aau.at)", "license": "CC BY-NC 4.0 (과학 연구 목적)", "url": "https://ftp.itec.aau.at/datasets/LapGyn4/", "use": "tag/interval"}, {"family": "부인과 수술 (자궁절제 등)", "name": "GLENDA (v1.5)", "labels": "병변 region 주석: peritoneum, ovary, uterus, DIE. No-pathology 프레임 별도", "size": "주석 프레임 373장(102예, 주석 628개), no-pathology 13,438장", "access": "직접 다운로드", "license": "CC BY-NC 4.0 (과학 연구 목적)", "url": "https://ftp.itec.aau.at/datasets/GLENDA/", "use": "seg (병변 영역) + tag/interval"}, {"family": "대장·직장 수술 (Colorectal)", "name": "Dresden Surgical Anatomy Dataset (DSAD)", "labels": "해부구조 seg 11종: colon, liver, pancreas, small intestine, spleen, stomach, ureter, vesicular glands, abdominal wall, inferior mesenteric artery, intestinal veins. 구조별 가시성 weak label 포함", "size": "이미지 13,195장, 환자 32명", "access": "Figshare 직접 다운로드", "license": "CC BY 4.0 (figshare 레코드 기준. 논문 usage note에는 비상업 언급도 있음)", "url": "https://figshare.com/articles/dataset/The_Dresden_Surgical_Anatomy_Dataset_for_abdominal_organ_segmentation_in_surgical_data_science/21702600", "use": "seg"}, {"family": "대장·직장 수술 (Colorectal)", "name": "HeiCo (ROBUST-MIS 2019 포함)", "labels": "전 프레임 phase(ID 0–13), 기구 유무 + instance seg(약 10,040프레임), OR 장비 센서 데이터", "size": "영상 30개(술식별 10개)", "access": "Synapse 계정 필요(전체 syn21903917, ROBUST-MIS syn18779624, workflow syn21898456)", "license": "CC BY-NC-SA (메타데이터는 CC0)", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8042116/", "use": "seg + tag/interval"}, {"family": "비만대사수술 (Bariatric)", "name": "MultiBypass140", "labels": "Phase 12개, step 46개, 수술 중 이상사건(IAE) 5종과 중증도(0–5)", "size": "영상 140개(스트라스부르 70 + 베른 70)", "access": "GitHub clone 후 CAMMA S3에서 zip 직접 다운로드", "license": "CC BY-NC-SA 4.0", "url": "https://github.com/CAMMA-public/MultiBypass140", "use": "tag/interval"}, {"family": "비만대사수술 (Bariatric)", "name": "LapEx", "labels": "활동 quadruplet <actor, instrument, verb, target>, 노출 품질 3단계, 기구·장기 전체 semantic seg", "size": "영상 30개(집도의 2명, 25 fps)", "access": "Recherche Data Gouv에서 \"Request access\" → DUA 승인", "license": "표준 라이선스 없음. CHU Grenoble Alpes DTA 적용(과학 연구만, 상업 이용·제3자 판매 금지)", "url": "https://doi.org/10.57745/1F0UBU", "use": "seg + tag/interval"}, {"family": "백내장·안과 현미경 수술 (Microscopic)", "name": "CATARACTS", "labels": "도구 유무 검출, 수술 활동(phase) 인식", "size": "수술 50건(현미경 영상 + tray 영상), 영상 117.8 GB", "access": "IEEE DataPort 무료 계정 로그인(Open Access)", "license": "페이지에 명시 없음 → 미확인", "url": "https://ieee-dataport.org/open-access/cataracts", "use": "tag/interval"}, {"family": "백내장·안과 현미경 수술 (Microscopic)", "name": "CaDIS", "labels": "Semantic seg 36클래스(기구 29, 해부 4, 기타 3)", "size": "이미지 4,670장(train 3,550 / val 534 / test 586)", "access": "**확인 시점에 공식 페이지가 \"Link coming up soon\"으로 표기됨.** 실제 다운로드 경로 미확인", "license": "미확인", "url": "https://cataracts.grand-challenge.org/CaDIS/", "use": "seg"}, {"family": "백내장·안과 현미경 수술 (Microscopic)", "name": "Cataract-101", "labels": "Phase 10개", "size": "영상 101개(집도의 4명), zip 약 8.3 GB", "access": "직접 다운로드(ftp.itec.aau.at)", "license": "CC BY-NC 4.0 (과학 연구 목적)", "url": "https://ftp.itec.aau.at/datasets/ovid/cat-101/", "use": "tag/interval"}, {"family": "백내장·안과 현미경 수술 (Microscopic)", "name": "Cataract-1K", "labels": "Phase 12~13개(영상 56개), seg(영상 30개, 2,256프레임): 해부 3종(iris, pupil, IOL) + 기구 9종, 이상 소견(동공 반응, IOL 회전)", "size": "영상 1,000개(대부분 라벨 없음)", "access": "Synapse 로그인 후 조건 동의(syn53404507 등)", "license": "CC BY 4.0", "url": "https://github.com/Negin-Ghamsarian/Cataract-1K", "use": "seg + tag/interval (+ 대부분은 video only)"}, {"family": "신경외과 (내시경 뇌하수체 수술)", "name": "PitVis-2023", "labels": "Step, 기구 라벨(코드 매핑 파일 포함)", "size": "영상 25개", "access": "UCL RDR 직접 다운로드(DOI 10.5522/04/26531686)", "license": "CC BY-NC-SA 4.0", "url": "https://rdr.ucl.ac.uk/articles/dataset/PitVis_Challenge_Endoscopic_Pituitary_Surgery_videos/26531686", "use": "tag/interval"}, {"family": "이비인후과 (부비동 내시경)", "name": "UW-Sinus-Surgery-C/L", "labels": "기구 binary seg(수동)", "size": "zip 170 MB. 저장소 페이지에 프레임 수는 없음. 문헌상 cadaver 4,345장 + live 4,658장으로 보고되나 공식 페이지 기준으로는 미확인", "access": "UW ResearchWorks 직접 다운로드", "license": "미확인(첨부 license.txt는 저장소 기탁 계약서이며 이용 라이선스가 아님)", "url": "https://digital.lib.washington.edu/researchworks/items/80f00953-c8e0-46e1-9095-3c7cf0de6bed", "use": "seg"}, {"family": "개복·개방 수술 (Open surgery)", "name": "AVOS (Annotated Videos of Open Surgery)", "labels": "UMLS 태그, 1초 단위 action(343개 영상, 47시간), 기구·손 bbox 1.2만 개 이상, 손 keypoint 1.1만 개 이상", "size": "영상 1,997개", "access": "\"Request Access\" 요청서", "license": "미확인", "url": "https://research.bidmc.org/surgical-informatics/avos", "use": "tag/interval (bbox)"}, {"family": "개복·개방 수술 (Open surgery)", "name": "EgoSurgery-Phase / EgoSurgery-Tool", "labels": "Phase 9개와 eye gaze(Phase), 기구·손 bbox(Tool)", "size": "Phase 약 15시간(논문 기준). 저장소에는 규모 명시 없음", "access": "Google Form 요청 → 다운로드 링크 수령", "license": "CC BY-NC-SA 4.0 (학술 연구만, 개인 식별 추론 금지)", "url": "https://github.com/Fujiry0/EgoSurgery", "use": "tag/interval (bbox)"}, {"family": "범용 기구 데이터셋 (참고: 수술이 아닌 GI 내시경 시술)", "name": "Kvasir-Instrument", "labels": "기구 seg 마스크 + bbox(JSON)", "size": "이미지 590장, 170 MB", "access": "직접 다운로드(datasets.simula.no, OSF)", "license": "표준 라이선스 표기 없음. 이용약관: 연구·교육 목적 한정, 서면 허가 없는 상업 이용 금지, 인용 의무", "url": "https://datasets.simula.no/kvasir-instrument/", "use": "seg"}]</script>
+<script>
+(function(){
+  // theme
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  var t=load('sv-theme'); if(t) root.setAttribute('data-theme',t);
+  btn.addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    var n=dark?'light':'dark'; root.setAttribute('data-theme',n); store('sv-theme',n);
+  });
+  // copy buttons
+  document.querySelectorAll('button[data-copy]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var txt=document.getElementById(b.dataset.copy).innerText, old=b.textContent;
+      function done(){b.textContent='복사됨 ✓';setTimeout(function(){b.textContent=old},1500)}
+      if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done,fallback)}else{fallback()}
+      function fallback(){var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){b.textContent='직접 선택해 복사하세요'}document.body.removeChild(ta)}
+    });
+  });
+  // datasets
+  var ds=[]; try{ds=JSON.parse(document.getElementById('ds-data').textContent)}catch(e){}
+  var tb=document.querySelector('#dstable tbody'), q=document.getElementById('dsq'), f=document.getElementById('dsf'), m=document.getElementById('dsm');
+  Array.from(new Set(ds.map(function(d){return d.family}))).forEach(function(x){var o=document.createElement('option');o.value=o.textContent=x;f.appendChild(o)});
+  function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function render(){
+    var qq=q.value.toLowerCase(), rows=ds.filter(function(d){
+      return (!f.value||d.family===f.value)&&(!m.value||d.use.toLowerCase().indexOf(m.value)>=0)&&(!qq||JSON.stringify(d).toLowerCase().indexOf(qq)>=0)});
+    tb.innerHTML=rows.map(function(d){
+      var link=d.url?'<a href="'+esc(d.url)+'" target="_blank" rel="noopener">'+esc(d.name)+'</a>':esc(d.name);
+      return '<tr><td>'+esc(d.family)+'</td><td>'+link+'<br><span style="color:var(--muted);font-size:12px">'+esc(d.access)+'</span></td><td>'+esc(d.labels)+'</td><td>'+esc(d.size)+'</td><td>'+esc(d.license)+'</td><td>'+esc(d.use)+'</td></tr>'}).join('');
+    document.getElementById('dscount').textContent=rows.length+' / '+ds.length+'개';
+  }
+  [q,f,m].forEach(function(el){el.addEventListener('input',render)}); render();
+  // checklist
+  var items=['Studio 실행 확인','1 설계 저장(클래스·정의·경계 규칙)','2 필요한 시험 환자 수 계산','3 거버넌스 결정 저장','4 프레임 추출','5 화면 검토 완료','6 아노테이션 가져오기','6 일치도 확인','7 분할·점검(누수 없음)','8 모델 후보 비교','9 학습·시험 1회, worst 예시 검토','9 학습곡선(선택)','10 외부검증 또는 없음 기록','11 원고 초안·결과 ZIP 다운로드'];
+  var box=document.getElementById('checklist'), saved={}; try{saved=JSON.parse(load('sv-check')||'{}')}catch(e){}
+  items.forEach(function(it,i){var l=document.createElement('label');var c=document.createElement('input');c.type='checkbox';c.checked=!!saved[i];
+    c.addEventListener('change',function(){saved[i]=c.checked;store('sv-check',JSON.stringify(saved))});l.appendChild(c);l.appendChild(document.createTextNode(it));box.appendChild(l)});
+})();
+</script>
+
+</body>
+</html>
