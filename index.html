@@ -100,8 +100,14 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 <div class="note"><b>연결 확인:</b> Aside 대화창에 "지금 연결된 모델이 뭐야?"라고 물어 답이 오면 준비 완료입니다. <b>Settings → Models → Task models</b>에서 기본 모델을 바꿀 수 있습니다. 연결한 ChatGPT·Claude 구독 사용량은 각 서비스 계정에서 차감되고, Aside 자체 크레딧과는 따로 계산됩니다.</div>
 
 <h2 id="quick">빠른 시작 — 3단계</h2>
+<div class="tablewrap"><table>
+<tr><th></th><th>이 안내서</th><th>SurgVision Studio</th></tr>
+<tr><td>무엇</td><td>순서·개념·프롬프트를 읽는 페이지</td><td>실제로 프레임 추출·아노테이션 정리·모델 학습·평가를 하는 앱</td></tr>
+<tr><td>어디서</td><td>인터넷 (어디서나)</td><td><b>내 컴퓨터</b> — 환자 영상이 밖으로 나가지 않도록</td></tr>
+<tr><td>주소</td><td>지금 보고 있는 주소</td><td><code>http://localhost:8501</code> (Studio를 켜야 열림)</td></tr>
+</table></div>
 <div class="grid">
-  <div class="card"><h3>① Studio 켜기</h3><p><a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener">키트를 내려받아</a> 압축을 푼 뒤 <code>SurgVisionStudio/studio/start_studio.command</code>를 더블클릭(맥) 또는 <code>start_studio.bat</code>(윈도우). 브라우저에 <code>http://localhost:8501</code>이 열립니다. 처음이면 아래 <a href="#install">설치</a>부터.</p></div>
+  <div class="card"><h3>① 내 컴퓨터에서 Studio 켜기</h3><p><a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener">키트를 내려받아</a> 압축을 푼 뒤 <code>SurgVisionStudio/studio/start_studio.command</code>를 더블클릭(맥) 또는 <code>start_studio.bat</code>(윈도우). 잠시 뒤 브라우저에 <b><code>http://localhost:8501</code></b>이 열립니다. 이 주소는 <b>내 컴퓨터 안</b>에서만 열리며, 켜 둔 창(터미널)을 닫으면 Studio도 꺼집니다. 처음이면 아래 <a href="#install">설치</a>부터.</p></div>
   <div class="card"><h3>② Aside에 프롬프트 붙여 넣기</h3><p>Aside 브라우저를 열고 아래 <a href="#prompt">전체 실습 프롬프트</a>를 <b>복사해 대화창에 한 번에</b> 붙여 넣습니다. Aside가 아이디어를 묻고 0단계부터 안내합니다.</p></div>
   <div class="card"><h3>③ 내 영상 또는 예제로 따라가기</h3><p>영상·IRB가 아직 없으면 <code>example_videos/</code>(공개 데이터로 만든 모의 환자 영상 5개)로 같은 흐름을 그대로 연습합니다. 약 2~3시간.</p></div>
 </div>
@@ -292,6 +298,7 @@ B탭: 이미 라벨이 있는 공개 데이터 폴더를 가져올 때 사용합
 <h2 id="trouble">문제 해결</h2>
 <div class="tablewrap"><table>
 <tr><th>증상</th><th>할 일</th></tr>
+<tr><td><code>localhost:8501</code>이 안 열림 / "Port 8501 is already in use"</td><td>Studio가 이미 다른 창에서 켜져 있습니다. 그 브라우저 탭을 쓰거나, 켜 둔 터미널 창을 닫고 다시 실행하세요. Studio를 켜지 않으면 이 주소는 열리지 않습니다.</td></tr>
 <tr><td>start_studio가 "Python을 찾지 못했습니다"</td><td><a href="#install">설치</a>의 pip 명령을 실행. Anaconda가 있으면 그 python으로 실행.</td></tr>
 <tr><td>프레임 추출이 바로 실패</td><td>ffmpeg 설치 확인(<code>ffmpeg -version</code>). 대응표에 모든 영상 파일명이 있는지.</td></tr>
 <tr><td>"[STOP] CVAT labels … not in config.class_names"</td><td>CVAT 라벨 이름과 1단계 클래스 이름의 글자·대소문자를 똑같이.</td></tr>
