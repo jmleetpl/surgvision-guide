@@ -107,7 +107,7 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 <tr><td>주소</td><td>지금 보고 있는 주소</td><td><code>http://localhost:8501</code> (Studio를 켜야 열림)</td></tr>
 </table></div>
 <div class="grid">
-  <div class="card"><h3>① 내 컴퓨터에서 Studio 켜기</h3><p><a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener">키트를 내려받아</a> 압축을 푼 뒤 <code>SurgVisionStudio/studio/start_studio.command</code>를 더블클릭(맥) 또는 <code>start_studio.bat</code>(윈도우). 잠시 뒤 브라우저에 <b><code>http://localhost:8501</code></b>이 열립니다. 이 주소는 <b>내 컴퓨터 안</b>에서만 열리며, 켜 둔 창(터미널)을 닫으면 Studio도 꺼집니다. 처음이면 아래 <a href="#install">설치</a>부터.</p></div>
+  <div class="card"><h3>① 내 컴퓨터에서 Studio 켜기</h3><p><a href="https://drive.google.com/file/d/1n_H6CRNhcZxe7qeGmndhYjg1oYXy4gfZ/view?usp=sharing" target="_blank" rel="noopener">키트를 내려받아</a> 압축을 푼 뒤 <code>SurgVisionStudio/studio/start_studio.command</code>를 더블클릭(맥) 또는 <code>start_studio.bat</code>(윈도우). 잠시 뒤 브라우저에 <b><code>http://localhost:8501</code></b>이 열립니다. 이 주소는 <b>내 컴퓨터 안</b>에서만 열리며, 켜 둔 창(터미널)을 닫으면 Studio도 꺼집니다. 처음이면 <a href="#install">설치</a>의 순서대로(키트를 <b>바탕화면</b>에 풀기 → 설치 → 켜기) 진행하세요.</p></div>
   <div class="card"><h3>② Aside에 프롬프트 붙여 넣기</h3><p>Aside 브라우저를 열고 아래 <a href="#prompt">전체 실습 프롬프트</a>를 <b>복사해 대화창에 한 번에</b> 붙여 넣습니다. Aside가 아이디어를 묻고 0단계부터 안내합니다.</p></div>
   <div class="card"><h3>③ 내 영상 또는 예제로 따라가기</h3><p>영상·IRB가 아직 없으면 <code>example_videos/</code>(공개 데이터로 만든 모의 환자 영상 5개)로 같은 흐름을 그대로 연습합니다. 약 2~3시간.</p></div>
 </div>
@@ -122,16 +122,36 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
   <li>CVAT 계정(분할 아노테이션 시) — <a href="https://app.cvat.ai/" target="_blank" rel="noopener">app.cvat.ai</a> 또는 원내 CVAT</li>
   <li>Aside 브라우저와 ChatGPT 또는 Claude 연결 — <a href="#prep">실습 전 준비</a> 참고. 없어도 이 안내서만으로 진행할 수 있습니다.</li>
 </ul>
-<div class="copy"><button data-copy="install-mac">복사</button><pre id="install-mac"># 맥 터미널
-brew install ffmpeg
-cd "키트를 둔 폴더/SurgVisionStudio/studio"
-python3 -m pip install -r requirements.txt
+<h3>1. 키트 받아서 바탕화면에 풀기</h3>
+<p>키트 ZIP을 내려받아 압축을 풀면 <code>SurgVision_실습키트</code> 폴더가 생깁니다. 이 폴더를 <b>바탕화면</b>으로 옮기세요. 아래 명령은 모두 바탕화면에 있다고 가정한 정확한 경로입니다. 폴더 이름을 바꾸지 마세요.</p>
+<p class="muted" style="color:var(--muted)">폴더 구조: 바탕화면 › SurgVision_실습키트 › SurgVisionStudio › <b>studio</b> (여기에 app.py가 있음)</p>
+
+<h3>2. 맥 — 처음 한 번 설치</h3>
+<p><kbd>Cmd</kbd>+<kbd>Space</kbd> → "터미널" 입력 → Enter로 터미널을 엽니다. 아래를 한 줄씩 붙여 넣고 Enter.</p>
+<div class="copy"><button data-copy="install-mac">복사</button><pre id="install-mac">cd ~/Desktop/SurgVision_실습키트/SurgVisionStudio/studio
+ls                                   # app.py  requirements.txt 가 보이면 올바른 위치
+brew install ffmpeg                  # brew가 없다는 오류면 https://brew.sh 의 설치 명령을 먼저
+python3 -m pip install -r requirements.txt</pre></div>
+<h3>3. 맥 — Studio 켜기 (실습할 때마다)</h3>
+<div class="copy"><button data-copy="run-mac">복사</button><pre id="run-mac">cd ~/Desktop/SurgVision_실습키트/SurgVisionStudio/studio
 python3 -m streamlit run app.py</pre></div>
-<div class="copy"><button data-copy="install-win">복사</button><pre id="install-win">:: 윈도우 (Anaconda Prompt)
-conda install -c conda-forge ffmpeg
-cd "키트를 둔 폴더\SurgVisionStudio\studio"
-pip install -r requirements.txt
+<p>브라우저에 <code>http://localhost:8501</code>이 열리면 성공입니다. 터미널 창은 실습이 끝날 때까지 닫지 마세요.<br>
+명령 대신 <code>studio</code> 폴더의 <code>start_studio.command</code>를 더블클릭해도 됩니다. 처음에 "확인되지 않은 개발자" 경고가 나오면 파일을 <b>우클릭 → 열기 → 열기</b>로 한 번 허용하세요.</p>
+
+<h3>4. 윈도우 — 처음 한 번 설치</h3>
+<p>시작 메뉴에서 <b>Anaconda Prompt</b>를 엽니다(Anaconda가 없으면 <a href="https://www.anaconda.com/download" target="_blank" rel="noopener">anaconda.com/download</a>에서 먼저 설치). 아래를 한 줄씩 붙여 넣고 Enter.</p>
+<div class="copy"><button data-copy="install-win">복사</button><pre id="install-win">cd /d "%USERPROFILE%\Desktop\SurgVision_실습키트\SurgVisionStudio\studio"
+dir                                  :: app.py  requirements.txt 가 보이면 올바른 위치
+conda install -y -c conda-forge ffmpeg
+pip install -r requirements.txt</pre></div>
+<h3>5. 윈도우 — Studio 켜기 (실습할 때마다)</h3>
+<div class="copy"><button data-copy="run-win">복사</button><pre id="run-win">cd /d "%USERPROFILE%\Desktop\SurgVision_실습키트\SurgVisionStudio\studio"
 python -m streamlit run app.py</pre></div>
+
+<div class="warn"><b>"경로를 찾을 수 없습니다" / "No such file or directory"가 나오면</b> 폴더가 바탕화면에 없거나 바탕화면이 OneDrive 안에 있는 경우입니다.
+<br>• 맥: 터미널에 <code>cd </code>(cd 다음 공백 한 칸)를 입력한 뒤, Finder에서 <code>studio</code> 폴더를 터미널 창으로 끌어다 놓고 Enter.
+<br>• 윈도우: 파일 탐색기에서 <code>studio</code> 폴더를 열고 위쪽 주소창을 클릭해 경로를 복사한 뒤, Anaconda Prompt에 <code>cd /d "</code> + 붙여넣기 + <code>"</code>를 입력하고 Enter.
+<br>그다음 <code>ls</code>(맥) 또는 <code>dir</code>(윈도우)로 <code>app.py</code>가 보이는지 확인하고 실행 명령을 이어서 입력하세요.</div>
 <p>GPU가 없어도 됩니다. 예제(432프레임) 기준 맥북 CPU/MPS에서 학습 1회 약 1~5분. 큰 데이터는 9단계의 'Colab용 묶음'으로 GPU를 쓸 수 있습니다(클라우드 허용 시).</p>
 </div>
 
