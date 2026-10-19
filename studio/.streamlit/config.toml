@@ -1,0 +1,12 @@
+[server]
+maxUploadSize = 2000
+headless = false
+address = "localhost"
+port = 8501          # fixed so the guide can name one exact address: http://localhost:8501
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#0f6e6e"
